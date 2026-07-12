@@ -1,4 +1,4 @@
-const PROXY_SERVER = window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://your-render-app.onrender.com';
+const PROXY_SERVER = window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://back-endv1-2.onrender.com';
 let tabs = [];
 let activeTabId = null;
 
