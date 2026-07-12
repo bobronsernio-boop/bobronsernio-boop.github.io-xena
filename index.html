@@ -23,6 +23,25 @@
     .tab-active { background-color: #000000; border: 1px solid #111111; border-bottom: 1px solid #000000; color: #ffffff; }
     iframe { width: 100%; height: 100%; border: none; background: #ffffff; }
     ::-webkit-scrollbar { display: none; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: #0a0a0a; border: 1px solid #181818; border-radius: 14px; padding: 20px; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto; }
+    .modal-box h3 { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: white; margin-bottom: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .modal-box input, .modal-box textarea, .modal-box select { width: 100%; background: #000; border: 1px solid #181818; border-radius: 6px; padding: 7px 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #d4d4d8; outline: none; box-sizing: border-box; }
+    .modal-box input:focus, .modal-box textarea:focus, .modal-box select:focus { border-color: #333; }
+    .modal-box label { font-size: 9px; color: #52525b; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+    .modal-box .field { margin-bottom: 10px; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+    .modal-actions button { padding: 6px 14px; border-radius: 6px; font-size: 10px; font-family: 'JetBrains Mono', monospace; border: 1px solid #181818; background: #000; color: #a1a1aa; cursor: pointer; transition: all .15s; }
+    .modal-actions button:hover { border-color: #2a2a2a; color: white; }
+    .modal-actions button.primary { background: #181818; color: white; border-color: #2a2a2a; }
+    .modal-actions button.danger { background: #1a0000; color: #ef4444; border-color: #330000; }
+    .modal-actions button.warning { background: #1a1a00; color: #eab308; border-color: #332200; }
+    .stab-content { display: none; }
+    .stab-content.active { display: block; }
+    .tab-btn { padding: 4px 8px; border-radius: 4px; font-size: 9px; font-family: 'JetBrains Mono', monospace; border: 1px solid #181818; background: #000; color: #a1a1aa; cursor: pointer; transition: all .15s; }
+    .tab-btn:hover { border-color: #2a2a2a; }
+    .tab-btn.active { background: #181818; color: white; }
   </style>
 </head>
 <body class="flex flex-col select-none">
@@ -55,6 +74,12 @@
       <div class="flex-1 flex items-center h-6 rounded bg-black border border-[#151515] search-glow transition">
         <input type="text" id="chrome-url-bar" placeholder="" spellcheck="false" autocomplete="off" class="w-full px-3 text-xs bg-transparent outline-none text-zinc-300 font-mono" onkeydown="if(event.key === 'Enter') launchProxyUrl(this.value)">
       </div>
+
+      <div class="flex items-center gap-1.5">
+        <button onclick="openSettings()" class="flex items-center justify-center w-6 h-6 rounded border border-zinc-800 bg-[#050505] text-zinc-500 hover:text-white transition" title="Settings">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -73,10 +98,153 @@
           <button onclick="handleHomeAction(document.getElementById('search-input').value)" class="px-4 text-[10px] text-zinc-400 hover:text-white border-l border-[#151515] bg-zinc-950/40 hover:bg-zinc-900 transition tracking-widest uppercase">Go</button>
         </div>
 
+        <!-- About button -->
+        <div class="flex items-center gap-2 mt-1">
+          <button onclick="openAbout()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-zinc-900/50 border border-zinc-800 hover:bg-zinc-800/60 text-zinc-400 hover:text-white transition text-[10px] font-mono">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            About
+          </button>
+        </div>
+
       </div>
     </div>
   </main>
 
+  <!-- ===== SETTINGS MODAL ===== -->
+  <div id="setmodal" class="modal-overlay">
+    <div class="modal-box">
+      <h3>Settings</h3>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="tab-btn active" onclick="switchPane('pane-cloak',this)">Cloak</button>
+        <button class="tab-btn" onclick="switchPane('pane-reset',this)">Reset</button>
+      </div>
+      <div id="pane-cloak" class="stab-content active">
+        <div class="field"><label>Favicon URL</label><input type="text" id="inp-favicon"></div>
+        <div class="field"><label>Page Title</label><input type="text" id="inp-title"></div>
+        <div class="field"><label>Panic Key</label><input type="text" id="inp-panickey" value="Escape"></div>
+        <div class="field"><label>Panic URL</label><input type="text" id="inp-panicurl" value="https://classroom.google.com"></div>
+        <div class="modal-actions"><button onclick="closeModal('setmodal')">Cancel</button><button class="primary" onclick="saveSettings()">Save</button></div>
+      </div>
+      <div id="pane-reset" class="stab-content">
+        <p class="text-[10px] text-zinc-500 font-mono mb-3 leading-relaxed">Reset settings to defaults and optionally reset the service worker.</p>
+        <div class="modal-actions flex flex-col gap-2">
+          <div class="flex gap-2">
+            <button class="warning flex-1" onclick="resetSW()">Reset Service Worker</button>
+            <button class="danger flex-1" onclick="resetXena()">Reset Xena</button>
+          </div>
+          <button onclick="closeModal('setmodal')" class="w-full">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ABOUT MODAL ===== -->
+  <div id="aboutmodal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-4">
+        <h3 style="margin-bottom:0;">About</h3>
+        <button onclick="closeModal('aboutmodal')" class="flex items-center justify-center w-6 h-6 rounded hover:bg-zinc-900 text-zinc-500 hover:text-white transition">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div style="background:#000;border:1px solid #181818;border-radius:10px;padding:20px;max-height:50vh;overflow-y:auto;">
+        <p class="text-[11px] text-zinc-400 font-mono leading-relaxed" style="white-space:pre-wrap;">So uhh i dont know how to start this but, you may notice that XENA is a new Proxy. You have never heard the name before. XENA is a proxy that aims to be at the top, and a proxy that schools hate. Now, you will notice many bugs on XENA, some bugs more obvious than others. However you should know that Xena is in it's <span style="color:#ef4444;">beta</span> phase. This is because as the end of the academic year, approaches, more and more proxies are going on holiday, retreating for improvement. That was originally my plan, until I heard from other owners that a vast majority of Proxies are no longer functional. This means that I actually have to do school work! So, fed up, I decided to release XENA early.
+
+Oh yeah also join the discord for more links: <a href="https://discord.gg/rqG3ahPnR5" target="_blank" class="text-blue-400 hover:text-blue-300 underline">https://discord.gg/rqG3ahPnR5</a></p>
+      </div>
+    </div>
+  </div>
+
   <script src="main.js"></script>
+
+  <script>
+    function openSettings(){
+      document.getElementById('setmodal').classList.add('open');
+      restoreInputs();
+    }
+
+    function openAbout(){
+      document.getElementById('aboutmodal').classList.add('open');
+    }
+
+    function closeModal(id){
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function switchPane(pid,btn){
+      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      document.querySelectorAll('.stab-content').forEach(function(c){c.classList.remove('active');});
+      document.getElementById(pid).classList.add('active');
+    }
+
+    function restoreInputs(){
+      document.getElementById('inp-favicon').value=localStorage.getItem('xnFavicon')||'https://ssl.gstatic.com/classroom/favicon.png';
+      document.getElementById('inp-title').value=localStorage.getItem('xnTitle')||'XENA';
+      document.getElementById('inp-panickey').value=localStorage.getItem('xnPanicKey')||'Escape';
+      document.getElementById('inp-panicurl').value=localStorage.getItem('xnPanicUrl')||'https://classroom.google.com';
+    }
+
+    function saveSettings(){
+      var fav=document.getElementById('inp-favicon').value.trim()||'https://ssl.gstatic.com/classroom/favicon.png';
+      var title=document.getElementById('inp-title').value.trim()||'XENA';
+      var key=document.getElementById('inp-panickey').value.trim()||'Escape';
+      var purl=document.getElementById('inp-panicurl').value.trim()||'https://classroom.google.com';
+
+      var lnk=document.querySelector('link[rel*="icon"]')||document.createElement('link');
+      lnk.type='image/x-icon';
+      lnk.rel='shortcut icon';
+      lnk.href=fav;
+      document.head.appendChild(lnk);
+
+      document.title=title;
+      localStorage.setItem('xnFavicon',fav);
+      localStorage.setItem('xnTitle',title);
+      localStorage.setItem('xnPanicKey',key);
+      localStorage.setItem('xnPanicUrl',purl);
+      closeModal('setmodal');
+    }
+
+    function resetSW(){
+      if('serviceWorker'in navigator){
+        navigator.serviceWorker.getRegistrations().then(function(regs){
+          if(regs.length){
+            Promise.all(regs.map(function(r){return r.unregister();})).then(function(){
+              alert("Success! Refresh page to continue.");
+              location.reload();
+            }).catch(function(e){
+              alert("Failed to unregister SW: "+e.message);
+            });
+          } else {
+            alert("No service worker found to reset.");
+          }
+        }).catch(function(e){
+          alert("Error accessing SW: "+e.message);
+        });
+      } else {
+        alert("Service workers not supported in this browser.");
+      }
+    }
+
+    function resetXena(){
+      localStorage.clear();
+      if('serviceWorker'in navigator){
+        navigator.serviceWorker.getRegistrations().then(function(regs){
+          Promise.all(regs.map(function(r){return r.unregister();})).then(function(){
+            location.reload();
+          });
+        });
+      } else {
+        location.reload();
+      }
+    }
+
+    document.addEventListener('keydown',function(e){
+      var k=localStorage.getItem('xnPanicKey')||'Escape';
+      if(e.key===k){
+        window.location.href=localStorage.getItem('xnPanicUrl')||'https://classroom.google.com';
+      }
+    });
+  </script>
 </body>
 </html>
