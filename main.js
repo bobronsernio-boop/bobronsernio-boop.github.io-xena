@@ -86,7 +86,7 @@ function formatInputToUrl(input) {
   input = input.trim();
   if (!input) return 'https://duckduckgo.com/?kae=d';
 
-  // If it's explicitly a URL structure
+  // Explicit URL check
   if (/^https?:\/\//.test(input)) {
     try {
       const urlObj = new URL(input);
@@ -100,7 +100,7 @@ function formatInputToUrl(input) {
     return input;
   }
 
-  // If it is a web domain missing protocol (e.g., wikipedia.org, reddit.com)
+  // TLD syntax evaluation
   if (input.includes('.') && !input.includes(' ')) {
     if (input.includes('duckduckgo.com')) {
       return 'https://' + input + (input.includes('?') ? '&kae=d' : '?kae=d');
@@ -108,7 +108,7 @@ function formatInputToUrl(input) {
     return 'https://' + input;
   }
   
-  // Standard text input search query context
+  // Structural search execution with forced layout settings
   return 'https://duckduckgo.com/?q=' + encodeURIComponent(input) + '&kae=d';
 }
 
@@ -158,7 +158,6 @@ function handleNavigation(action) {
   } catch(e) {}
 }
 
-// Hook keydown listeners safely for entry UI input tracking
 document.addEventListener('DOMContentLoaded', () => {
   const urlBar = document.getElementById('chrome-url-bar');
   if (urlBar) {
