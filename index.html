@@ -7,6 +7,7 @@
 <link rel="shortcut icon" href="https://ssl.gstatic.com/classroom/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.2/dist/scramjet.all.js"></script>
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -32,6 +33,9 @@ body{color:#d4d4d8;font-family:'Inter',sans-serif;display:flex;flex-direction:co
 .modal-actions button.danger{background:#1a0000;color:#ef4444;border-color:#330000}
 .modal-actions button.warning{background:#1a1a00;color:#eab308;border-color:#332200}
 .stab-content{display:none}.stab-content.active{display:block}
+.tab-btn{padding:4px 8px;border-radius:4px;font-size:9px;font-family:'JetBrains Mono',monospace;border:1px solid #181818;background:#000;color:#a1a1aa;cursor:pointer;transition:all .15s}
+.tab-btn:hover{border-color:#2a2a2a}
+.tab-btn.active{background:#181818;color:white}
 .xena-title{user-select:none;letter-spacing:0.12em}
 .error-page{position:absolute;inset:0;z-index:25;background:#030303;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center}
 .error-page .code{font-family:'JetBrains Mono',monospace;font-size:48px;font-weight:700;color:#ef4444;letter-spacing:0.05em}
@@ -310,6 +314,7 @@ Oh yeah also join the discord for more links: <a href="https://discord.gg/rqG3ah
   </div>
 </div>
 
+<script src="main.js"></script>
 <script>
 // ============================================================
 // ENCODING
