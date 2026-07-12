@@ -1,4 +1,4 @@
-const PROXY_SERVER = window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://back-endv1-2.onrender.com';
+const PROXY_SERVER = window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://your-render-app.onrender.com';
 let tabs = [];
 let activeTabId = null;
 
@@ -84,8 +84,9 @@ function formatInputToUrl(input) {
   input = input.trim();
   if (/^https?:\/\//.test(input)) return input;
   if (input.includes('.') && !input.includes(' ')) return 'https://' + input;
-  // Locked to DuckDuckGo exclusively
-  return 'https://duckduckgo.com/?q=' + encodeURIComponent(input);
+  
+  // Forces dark mode natively via URL parameters directly from the client interface
+  return 'https://duckduckgo.com/?q=' + encodeURIComponent(input) + '&kae=d';
 }
 
 function launchProxyUrl(val) {
