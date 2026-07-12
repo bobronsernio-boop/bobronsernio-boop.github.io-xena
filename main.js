@@ -31,12 +31,14 @@ function createNewTab(targetUrl = '') {
 
 function renderTabs() {
   const container = document.getElementById('tab-container');
+  if (!container) return;
+  
   const addBtn = container.lastElementChild;
   container.innerHTML = '';
   
   tabs.forEach(tab => {
     const tabEl = document.createElement('div');
-    tabEl.className = `flex items-center h-7 px-3 min-w-[110px] max-w-[160px] rounded-t text-[11px] border border-transparent text-zinc-500 cursor-pointer transition select-none ${tab.id === activeTabId ? 'tab-active' : 'hover:bg-zinc-900/20'}`;
+    tabEl.className = `flex items-center h-7 px-3 min-w-[110px] max-w-[160px] rounded-t text-[11px] border border-transparent text-zinc-500 cursor-pointer transition select-none ${tab.id === activeTabId ? 'tab-active font-semibold text-zinc-200' : 'hover:bg-zinc-900/20'}`;
     tabEl.setAttribute('onclick', `switchTab('${tab.id}')`);
     
     tabEl.innerHTML = `
@@ -45,7 +47,7 @@ function renderTabs() {
     `;
     container.appendChild(tabEl);
   });
-  container.appendChild(addBtn);
+  if (addBtn) container.appendChild(addBtn);
 }
 
 function switchTab(id) {
@@ -57,11 +59,11 @@ function switchTab(id) {
   document.querySelectorAll('#frames-viewport iframe').forEach(f => f.classList.add('hidden'));
   
   if (!currentTab || !currentTab.url) {
-    homeView.classList.remove('hidden');
-    urlBar.value = '';
+    if (homeView) homeView.classList.remove('hidden');
+    if (urlBar) urlBar.value = '';
   } else {
-    homeView.classList.add('hidden');
-    urlBar.value = currentTab.url;
+    if (homeView) homeView.classList.add('hidden');
+    if (urlBar) urlBar.value = currentTab.url;
     const targetIframe = document.getElementById(`iframe-${id}`);
     if (targetIframe) targetIframe.classList.remove('hidden');
   }
@@ -82,10 +84,31 @@ function closeTab(id) {
 
 function formatInputToUrl(input) {
   input = input.trim();
-  if (/^https?:\/\//.test(input)) return input;
-  if (input.includes('.') && !input.includes(' ')) return 'https://' + input;
+  if (!input) return 'https://duckduckgo.com/?kae=d';
+
+  // If it's explicitly a URL structure
+  if (/^https?:\/\//.test(input)) {
+    try {
+      const urlObj = new URL(input);
+      if (urlObj.hostname.includes('duckduckgo.com')) {
+        if (!urlObj.searchParams.has('kae')) {
+          urlObj.searchParams.set('kae', 'd');
+        }
+        return urlObj.toString();
+      }
+    } catch(e) {}
+    return input;
+  }
+
+  // If it is a web domain missing protocol (e.g., wikipedia.org, reddit.com)
+  if (input.includes('.') && !input.includes(' ')) {
+    if (input.includes('duckduckgo.com')) {
+      return 'https://' + input + (input.includes('?') ? '&kae=d' : '?kae=d');
+    }
+    return 'https://' + input;
+  }
   
-  // Forces dark mode natively via URL parameters directly from the client interface
+  // Standard text input search query context
   return 'https://duckduckgo.com/?q=' + encodeURIComponent(input) + '&kae=d';
 }
 
@@ -134,6 +157,18 @@ function handleNavigation(action) {
     if (action === 'reload') frame.contentWindow.location.reload();
   } catch(e) {}
 }
+
+// Hook keydown listeners safely for entry UI input tracking
+document.addEventListener('DOMContentLoaded', () => {
+  const urlBar = document.getElementById('chrome-url-bar');
+  if (urlBar) {
+    urlBar.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        launchProxyUrl(urlBar.value);
+      }
+    });
+  }
+});
 
 initProxyWorker();
 createNewTab();
